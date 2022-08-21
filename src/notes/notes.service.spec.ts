@@ -3,17 +3,19 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService, registerAs } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { AuthToken } from '../auth/auth-token.entity';
 import { Author } from '../authors/author.entity';
+import { DefaultAccessPermission } from '../config/default-access-permission.enum';
 import appConfigMock from '../config/mock/app.config.mock';
 import authConfigMock from '../config/mock/auth.config.mock';
 import databaseConfigMock from '../config/mock/database.config.mock';
 import noteConfigMock from '../config/mock/note.config.mock';
+import { NoteConfig } from '../config/note.config';
 import {
   AlreadyInDBError,
   ForbiddenIdError,
@@ -21,6 +23,7 @@ import {
 } from '../errors/errors';
 import { Group } from '../groups/group.entity';
 import { GroupsModule } from '../groups/groups.module';
+import { SpecialGroup } from '../groups/groups.special';
 import { Identity } from '../identity/identity.entity';
 import { LoggerModule } from '../logger/logger.module';
 import { NoteGroupPermission } from '../permissions/note-group-permission.entity';
@@ -40,10 +43,24 @@ import { Tag } from './tag.entity';
 
 describe('NotesService', () => {
   let service: NotesService;
+  let noteMockConfig = noteConfigMock;
   let noteRepo: Repository<Note>;
   let revisionRepo: Repository<Revision>;
   let userRepo: Repository<User>;
+  let groupRepo: Repository<Group>;
   let forbiddenNoteId: string;
+  let everyoneDefaultAccessPermission: string;
+  let loggedinDefaultAccessPermission: string;
+  const everyone = Group.create(
+    SpecialGroup.EVERYONE,
+    SpecialGroup.EVERYONE,
+    true,
+  );
+  const loggedin = Group.create(
+    SpecialGroup.LOGGED_IN,
+    SpecialGroup.LOGGED_IN,
+    true,
+  );
 
   /**
    * Creates a Note and a corresponding User and Group for testing.
@@ -58,6 +75,10 @@ describe('NotesService', () => {
     jest
       .spyOn(noteRepo, 'save')
       .mockImplementation(async (note: Note): Promise<Note> => note);
+    jest
+      .spyOn(groupRepo, 'findOne')
+      .mockResolvedValueOnce(everyone as Group)
+      .mockResolvedValueOnce(loggedin as Group);
     const note = await service.createNote(content, null);
     const revisions = await note.revisions;
     revisions[0].edits = Promise.resolve([
@@ -148,6 +169,16 @@ describe('NotesService', () => {
       ),
       undefined,
     );
+    groupRepo = new Repository<Group>(
+      '',
+      new EntityManager(
+        new DataSource({
+          type: 'sqlite',
+          database: ':memory:',
+        }),
+      ),
+      undefined,
+    );
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotesService,
@@ -168,6 +199,10 @@ describe('NotesService', () => {
           provide: getRepositoryToken(User),
           useValue: userRepo,
         },
+        {
+          provide: getRepositoryToken(Group),
+          useValue: groupRepo,
+        },
       ],
       imports: [
         LoggerModule,
@@ -181,7 +216,7 @@ describe('NotesService', () => {
             appConfigMock,
             databaseConfigMock,
             authConfigMock,
-            noteConfigMock,
+            noteMockConfig,
           ],
         }),
       ],
@@ -207,7 +242,7 @@ describe('NotesService', () => {
       .overrideProvider(getRepositoryToken(NoteUserPermission))
       .useValue({})
       .overrideProvider(getRepositoryToken(Group))
-      .useClass(Repository)
+      .useValue(groupRepo)
       .overrideProvider(getRepositoryToken(Session))
       .useValue({})
       .overrideProvider(getRepositoryToken(Author))
@@ -215,7 +250,12 @@ describe('NotesService', () => {
       .compile();
 
     const config = module.get<ConfigService>(ConfigService);
-    forbiddenNoteId = config.get('noteConfig').forbiddenNoteIds[0];
+    const noteConfig = config.get<NoteConfig>('noteConfig') as NoteConfig;
+    forbiddenNoteId = noteConfig.forbiddenNoteIds[0];
+    everyoneDefaultAccessPermission =
+      noteConfig.permissions.accessDefault.everyone;
+    loggedinDefaultAccessPermission =
+      noteConfig.permissions.accessDefault.loggedIn;
     service = module.get<NotesService>(NotesService);
     noteRepo = module.get<Repository<Note>>(getRepositoryToken(Note));
     revisionRepo = module.get<Repository<Revision>>(
@@ -292,6 +332,10 @@ describe('NotesService', () => {
         jest
           .spyOn(noteRepo, 'save')
           .mockImplementation(async (note: Note): Promise<Note> => note);
+        jest
+          .spyOn(groupRepo, 'findOne')
+          .mockResolvedValueOnce(everyone as Group)
+          .mockResolvedValueOnce(loggedin as Group);
       });
       it('without alias, without owner', async () => {
         const newNote = await service.createNote(content, null);
@@ -300,7 +344,16 @@ describe('NotesService', () => {
         expect(revisions[0].content).toEqual(content);
         expect(await newNote.historyEntries).toHaveLength(0);
         expect(await newNote.userPermissions).toHaveLength(0);
-        expect(await newNote.groupPermissions).toHaveLength(0);
+        const groupPermissions = await newNote.groupPermissions;
+        expect(groupPermissions).toHaveLength(2);
+        expect(groupPermissions[0].canEdit).toEqual(
+          everyoneDefaultAccessPermission === DefaultAccessPermission.WRITE,
+        );
+        expect(groupPermissions[0].group.name).toEqual(SpecialGroup.EVERYONE);
+        expect(groupPermissions[1].canEdit).toEqual(
+          loggedinDefaultAccessPermission === DefaultAccessPermission.WRITE,
+        );
+        expect(groupPermissions[1].group.name).toEqual(SpecialGroup.LOGGED_IN);
         expect(await newNote.tags).toHaveLength(0);
         expect(await newNote.owner).toBeNull();
         expect(await newNote.aliases).toHaveLength(0);
@@ -313,7 +366,16 @@ describe('NotesService', () => {
         expect(await newNote.historyEntries).toHaveLength(1);
         expect((await newNote.historyEntries)[0].user).toEqual(user);
         expect(await newNote.userPermissions).toHaveLength(0);
-        expect(await newNote.groupPermissions).toHaveLength(0);
+        const groupPermissions = await newNote.groupPermissions;
+        expect(groupPermissions).toHaveLength(2);
+        expect(groupPermissions[0].canEdit).toEqual(
+          everyoneDefaultAccessPermission === DefaultAccessPermission.WRITE,
+        );
+        expect(groupPermissions[0].group.name).toEqual(SpecialGroup.EVERYONE);
+        expect(groupPermissions[1].canEdit).toEqual(
+          loggedinDefaultAccessPermission === DefaultAccessPermission.WRITE,
+        );
+        expect(groupPermissions[1].group.name).toEqual(SpecialGroup.LOGGED_IN);
         expect(await newNote.tags).toHaveLength(0);
         expect(await newNote.owner).toEqual(user);
         expect(await newNote.aliases).toHaveLength(0);
@@ -325,7 +387,16 @@ describe('NotesService', () => {
         expect(revisions[0].content).toEqual(content);
         expect(await newNote.historyEntries).toHaveLength(0);
         expect(await newNote.userPermissions).toHaveLength(0);
-        expect(await newNote.groupPermissions).toHaveLength(0);
+        const groupPermissions = await newNote.groupPermissions;
+        expect(groupPermissions).toHaveLength(2);
+        expect(groupPermissions[0].canEdit).toEqual(
+          everyoneDefaultAccessPermission === DefaultAccessPermission.WRITE,
+        );
+        expect(groupPermissions[0].group.name).toEqual(SpecialGroup.EVERYONE);
+        expect(groupPermissions[1].canEdit).toEqual(
+          loggedinDefaultAccessPermission === DefaultAccessPermission.WRITE,
+        );
+        expect(groupPermissions[1].group.name).toEqual(SpecialGroup.LOGGED_IN);
         expect(await newNote.tags).toHaveLength(0);
         expect(await newNote.owner).toBeNull();
         expect(await newNote.aliases).toHaveLength(1);
@@ -338,11 +409,62 @@ describe('NotesService', () => {
         expect(await newNote.historyEntries).toHaveLength(1);
         expect((await newNote.historyEntries)[0].user).toEqual(user);
         expect(await newNote.userPermissions).toHaveLength(0);
-        expect(await newNote.groupPermissions).toHaveLength(0);
+        const groupPermissions = await newNote.groupPermissions;
+        expect(groupPermissions).toHaveLength(2);
+        expect(groupPermissions[0].canEdit).toEqual(
+          everyoneDefaultAccessPermission === DefaultAccessPermission.WRITE,
+        );
+        expect(groupPermissions[0].group.name).toEqual(SpecialGroup.EVERYONE);
+        expect(groupPermissions[1].canEdit).toEqual(
+          loggedinDefaultAccessPermission === DefaultAccessPermission.WRITE,
+        );
+        expect(groupPermissions[1].group.name).toEqual(SpecialGroup.LOGGED_IN);
         expect(await newNote.tags).toHaveLength(0);
         expect(await newNote.owner).toEqual(user);
         expect(await newNote.aliases).toHaveLength(1);
         expect((await newNote.aliases)[0].name).toEqual(alias);
+      });
+      describe('with other', () => {
+        beforeAll(() => {
+          noteMockConfig = registerAs(
+            'noteConfig',
+            (): NoteConfig => ({
+              maxDocumentLength: 100000,
+              forbiddenNoteIds: ['forbiddenNoteId'],
+              permissions: {
+                accessDefault: {
+                  everyone: DefaultAccessPermission.NONE,
+                  loggedIn: DefaultAccessPermission.READ,
+                },
+              },
+            }),
+          );
+        });
+        it('default permissions', async () => {
+          jest.spyOn(groupRepo, 'findOne').mockReset();
+          jest
+            .spyOn(groupRepo, 'findOne')
+            .mockResolvedValueOnce(loggedin as Group);
+          const newNote = await service.createNote(content, user, alias);
+          const revisions = await newNote.revisions;
+          expect(revisions).toHaveLength(1);
+          expect(revisions[0].content).toEqual(content);
+          expect(await newNote.historyEntries).toHaveLength(1);
+          expect((await newNote.historyEntries)[0].user).toEqual(user);
+          expect(await newNote.userPermissions).toHaveLength(0);
+          const groupPermissions = await newNote.groupPermissions;
+          expect(groupPermissions).toHaveLength(1);
+          expect(groupPermissions[0].canEdit).toEqual(
+            loggedinDefaultAccessPermission === DefaultAccessPermission.WRITE,
+          );
+          expect(groupPermissions[0].group.name).toEqual(
+            SpecialGroup.LOGGED_IN,
+          );
+          expect(await newNote.tags).toHaveLength(0);
+          expect(await newNote.owner).toEqual(user);
+          expect(await newNote.aliases).toHaveLength(1);
+          expect((await newNote.aliases)[0].name).toEqual(alias);
+        });
       });
     });
     describe('fails:', () => {
@@ -353,6 +475,10 @@ describe('NotesService', () => {
       });
 
       it('alias is already used', async () => {
+        jest
+          .spyOn(groupRepo, 'findOne')
+          .mockResolvedValueOnce(everyone as Group)
+          .mockResolvedValueOnce(loggedin as Group);
         jest.spyOn(noteRepo, 'save').mockImplementationOnce(async () => {
           throw new Error();
         });
@@ -369,6 +495,10 @@ describe('NotesService', () => {
       jest
         .spyOn(noteRepo, 'save')
         .mockImplementation(async (note: Note): Promise<Note> => note);
+      jest
+        .spyOn(groupRepo, 'findOne')
+        .mockResolvedValueOnce(everyone as Group)
+        .mockResolvedValueOnce(loggedin as Group);
       const newNote = await service.createNote(content, null);
       const revisions = await newNote.revisions;
       jest.spyOn(revisionRepo, 'findOne').mockResolvedValueOnce(revisions[0]);
