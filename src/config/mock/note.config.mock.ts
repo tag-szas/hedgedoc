@@ -5,6 +5,7 @@
  */
 import { registerAs } from '@nestjs/config';
 
+import { DefaultAccessPermission } from '../default-access-permission.enum';
 import { NoteConfig } from '../note.config';
 
 export default registerAs(
@@ -12,5 +13,11 @@ export default registerAs(
   (): NoteConfig => ({
     maxDocumentLength: 100000,
     forbiddenNoteIds: ['forbiddenNoteId'],
+    permissions: {
+      accessDefault: {
+        everyone: DefaultAccessPermission.READ,
+        loggedIn: DefaultAccessPermission.WRITE,
+      },
+    },
   }),
 );
