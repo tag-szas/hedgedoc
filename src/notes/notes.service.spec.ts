@@ -275,6 +275,7 @@ describe('NotesService', () => {
 
       it('with no note', async () => {
         const createQueryBuilder = {
+          leftJoinAndSelect: () => createQueryBuilder,
           where: () => createQueryBuilder,
           getMany: async () => {
             return null;
@@ -291,6 +292,7 @@ describe('NotesService', () => {
 
       it('with one note', async () => {
         const createQueryBuilder = {
+          leftJoinAndSelect: () => createQueryBuilder,
           where: () => createQueryBuilder,
           getMany: async () => {
             return [note];
@@ -307,6 +309,7 @@ describe('NotesService', () => {
 
       it('with multiple note', async () => {
         const createQueryBuilder = {
+          leftJoinAndSelect: () => createQueryBuilder,
           where: () => createQueryBuilder,
           getMany: async () => {
             return [note, note];
