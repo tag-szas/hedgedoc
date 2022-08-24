@@ -32,8 +32,8 @@ export enum GuestPermission {
 @Injectable()
 export class PermissionsService {
   constructor(
-    public usersService: UsersService,
-    public groupsService: GroupsService,
+    private usersService: UsersService,
+    private groupsService: GroupsService,
     @InjectRepository(Note) private noteRepository: Repository<Note>,
     private readonly logger: ConsoleLoggerService,
   ) {}
