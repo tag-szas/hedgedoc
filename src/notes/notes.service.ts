@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+import { Optional } from '@mrdrogdrog/optional';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,6 +15,7 @@ import {
   ForbiddenIdError,
   NotInDBError,
 } from '../errors/errors';
+import { Group } from '../groups/group.entity';
 import { GroupsService } from '../groups/groups.service';
 import { SpecialGroup } from '../groups/groups.special';
 import { HistoryEntry } from '../history/history-entry.entity';
@@ -106,17 +108,22 @@ export class NotesService {
         HistoryEntry.create(owner, newNote as Note) as HistoryEntry,
       ]);
     }
+
+    const everyonePermission = this.createGroupPermission(
+      newNote as Note,
+      await this.groupsService.getEveryoneGroup(),
+      this.noteConfig.permissions.accessDefault.everyone,
+    ).wrapInArray();
+
+    const loggedInPermission = this.createGroupPermission(
+      newNote as Note,
+      await this.groupsService.getLoggedInGroup(),
+      this.noteConfig.permissions.accessDefault.loggedIn,
+    ).wrapInArray();
+
     newNote.groupPermissions = Promise.resolve([
-      ...(await this.createSpecialGroupPermission(
-        newNote as Note,
-        SpecialGroup.EVERYONE,
-        this.noteConfig.permissions.accessDefault.everyone,
-      )),
-      ...(await this.createSpecialGroupPermission(
-        newNote as Note,
-        SpecialGroup.LOGGED_IN,
-        this.noteConfig.permissions.accessDefault.loggedIn,
-      )),
+      ...everyonePermission,
+      ...loggedInPermission,
     ]);
 
     try {
@@ -136,22 +143,20 @@ export class NotesService {
     }
   }
 
-  private async createSpecialGroupPermission(
+  private createGroupPermission(
     note: Note,
-    groupName: SpecialGroup,
+    group: Group,
     permission: DefaultAccessPermission,
-  ): Promise<NoteGroupPermission[]> {
-    if (permission === DefaultAccessPermission.NONE) {
-      return [];
-    }
-    const group = await this.groupsService.getGroupByName(groupName);
-    return [
-      NoteGroupPermission.create(
-        group,
-        note,
-        permission === DefaultAccessPermission.WRITE,
-      ),
-    ];
+  ): Optional<NoteGroupPermission> {
+    return Optional.ofNullable(permission)
+      .filter((wantedPermission) => wantedPermission !== DefaultAccessPermission.NONE)
+      .map((wantedPermission) =>
+        NoteGroupPermission.create(
+          group,
+          note,
+          wantedPermission === DefaultAccessPermission.WRITE,
+        ),
+      );
   }
 
   /**
