@@ -40,14 +40,11 @@ export class PermissionsService {
 
   public guestPermission: GuestPermission; // TODO change to configOption
   async mayRead(user: User | null, note: Note): Promise<boolean> {
-    if (await this.isOwner(user, note)) return true;
-
-    if (await this.hasPermissionUser(user, note, false)) return true;
-
-    // noinspection RedundantIfStatementJS
-    if (await this.hasPermissionGroup(user, note, false)) return true;
-
-    return false;
+    return (
+      (await this.isOwner(user, note)) ||
+      (await this.hasPermissionUser(user, note, false)) ||
+      (await this.hasPermissionGroup(user, note, false))
+    );
   }
 
   async mayWrite(user: User | null, note: Note): Promise<boolean> {
