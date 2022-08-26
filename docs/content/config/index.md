@@ -35,12 +35,14 @@ If the renderer is provided by another domain, it's way harder to manipulate Hed
 
 ## Notes
 
-| environment variable                     | default | example                      | description                                                                                       |
-|------------------------------------------|---------|------------------------------|---------------------------------------------------------------------------------------------------|
-| `HD_FORBIDDEN_NOTE_IDS`                  | -       | `notAllowed, alsoNotAllowed` | A list of note ids (separated by `,`), that are not allowed to be created or requested by anyone. |
-| `HD_MAX_DOCUMENT_LENGTH`                 | 100000  |                              | The maximum length of any one document. Changes to this will impact performance for your users.   |
-| `HD_PERMISSION_ACCESS_DEFAULT_EVERYONE`  | read    | `none, read, write`          | The default permission for everyone (logged-in & non-logged-in users) that is set on new notes    |
-| `HD_PERMISSION_ACCESS_DEFAULT_LOGGED_IN` | write   | `none, read, write`          | The default permission for logged-in users that is set on new notes                               |
+| environment variable                     | default | example                           | description                                                                                                                         |
+|------------------------------------------|---------|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `HD_FORBIDDEN_NOTE_IDS`                  | -       | `notAllowed, alsoNotAllowed`      | A list of note ids (separated by `,`), that are not allowed to be created or requested by anyone.                                   |
+| `HD_MAX_DOCUMENT_LENGTH`                 | 100000  |                                   | The maximum length of any one document. Changes to this will impact performance for your users.                                     |
+| `HD_PERMISSION_ACCESS_DEFAULT_EVERYONE`  | read    | `none, read, write`               | The default permission for everyone (logged-in & non-logged-in users) that is set on new notes                                      |
+| `HD_PERMISSION_ACCESS_DEFAULT_LOGGED_IN` | write   | `none, read, write`               | The default permission for logged-in users that is set on new notes                                                                 |
+| `HD_CREATE_PERMISSION_EVERYONE`          | allow   | `none, allow, allowWithFreeAlias` | Defines if everyone (logged-in & non-logged-in users) is allowed to create notes and if they are allowed to freely choose the alias |
+| `HD_CREATE_PERMISSION_LOGGED_IN`         | allow   | `allow, allowWithFreeAlias`       | Defines if logged-in users are allowed to create notes and if they are allowed to freely choose the alias                           |
 
 ## Authentication
 
