@@ -48,14 +48,11 @@ export class PermissionsService {
   }
 
   async mayWrite(user: User | null, note: Note): Promise<boolean> {
-    if (await this.isOwner(user, note)) return true;
-
-    if (await this.hasPermissionUser(user, note, true)) return true;
-
-    // noinspection RedundantIfStatementJS
-    if (await this.hasPermissionGroup(user, note, true)) return true;
-
-    return false;
+    return (
+      (await this.isOwner(user, note)) ||
+      (await this.hasPermissionUser(user, note, true)) ||
+      (await this.hasPermissionGroup(user, note, true))
+    );
   }
 
   mayCreate(user: User | null): boolean {
