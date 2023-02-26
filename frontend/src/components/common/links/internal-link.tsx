@@ -24,7 +24,7 @@ export const InternalLink: React.FC<LinkWithTextProps> = ({
   text,
   icon,
   id,
-  className = 'text-light',
+  className = '',
   title
 }) => {
   return (

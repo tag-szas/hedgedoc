@@ -3,11 +3,12 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+import { useApplyDarkMode } from '../../hooks/common/use-apply-dark-mode'
 import { MotdModal } from '../common/motd-modal/motd-modal'
 import { Footer } from './footer/footer'
 import { HeaderBar } from './navigation/header-bar/header-bar'
 import type { PropsWithChildren } from 'react'
-import React, { Fragment } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
 
 /**
@@ -15,17 +16,19 @@ import { Container } from 'react-bootstrap'
  *
  * @param children The children that should be rendered on the page.
  */
-export const LandingLayout: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
+export const LandingLayout: React.FC<PropsWithChildren> = ({ children }) => {
+  useApplyDarkMode()
+
   return (
-    <Fragment>
+    <div>
       <MotdModal />
-      <Container className='text-light d-flex flex-column mvh-100'>
+      <Container className='d-flex flex-column mvh-100'>
         <HeaderBar />
         <div className={'d-flex flex-column justify-content-between flex-fill text-center'}>
           <main>{children}</main>
           <Footer />
         </div>
       </Container>
-    </Fragment>
+    </div>
   )
 }

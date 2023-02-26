@@ -33,7 +33,7 @@ const HeaderBar: React.FC = () => {
         </HeaderNavLink>
       </div>
       <div className='d-inline-flex'>
-        <SettingsButton className={'p-1 mx-2'} variant={'outline-light'} />
+        <SettingsButton className={'p-1 mx-2'} variant={'outline-dark'} />
         {!userExists ? (
           <Fragment>
             <span className={'mx-1 d-flex'}>

@@ -8,11 +8,14 @@ import { EditorPageContent } from '../../components/editor-page/editor-page-cont
 import { EditorToRendererCommunicatorContextProvider } from '../../components/editor-page/render-context/editor-to-renderer-communicator-context-provider'
 import type { NextPage } from 'next'
 import React from 'react'
+import { useApplyDarkMode } from '../../hooks/common/use-apply-dark-mode'
 
 /**
  * Renders a page that is used by the user to edit markdown notes. It contains the editor and a renderer.
  */
 export const EditorPage: NextPage = () => {
+  useApplyDarkMode()
+
   return (
     <NoteLoadingBoundary>
       <EditorToRendererCommunicatorContextProvider>

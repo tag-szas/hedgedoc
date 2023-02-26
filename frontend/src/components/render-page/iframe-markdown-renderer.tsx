@@ -126,7 +126,7 @@ export const IframeMarkdownRenderer: React.FC = () => {
       case RendererType.DOCUMENT:
         return (
           <MarkdownDocument
-            additionalOuterContainerClasses={'vh-100 bg-light'}
+            additionalOuterContainerClasses={'vh-100'}
             markdownContentLines={markdownContentLines}
             onFirstHeadingChange={onFirstHeadingChange}
             onMakeScrollSource={onMakeScrollSource}
@@ -150,7 +150,7 @@ export const IframeMarkdownRenderer: React.FC = () => {
       case RendererType.INTRO:
         return (
           <MarkdownDocument
-            additionalOuterContainerClasses={'vh-100 bg-light overflow-y-hidden'}
+            additionalOuterContainerClasses={'vh-100 overflow-y-hidden'}
             markdownContentLines={markdownContentLines}
             baseUrl={baseConfiguration.baseUrl}
             disableToc={true}

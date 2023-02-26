@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import { useApplicationState } from '../../hooks/common/use-application-state'
-import { useApplyDarkMode } from '../../hooks/common/use-apply-dark-mode'
 import { updateNoteTitleByFirstHeading } from '../../redux/note-details/methods'
 import { Logger } from '../../utils/logger'
 import { MotdModal } from '../common/motd-modal/motd-modal'
@@ -77,8 +76,6 @@ export const EditorPageContent: React.FC = () => {
     },
     [editorSyncScroll]
   )
-
-  useApplyDarkMode()
 
   useUpdateLocalHistoryEntry()
 

@@ -22,7 +22,7 @@ export const VersionInfoLink: React.FC = () => {
         size={'sm'}
         variant={'link'}
         {...cypressId('show-version-modal')}
-        className={'text-light p-0'}
+        className={'p-0'}
         onClick={showModal}>
         <Trans i18nKey={'landing.versionInfo.versionInfo'} />
       </Button>
