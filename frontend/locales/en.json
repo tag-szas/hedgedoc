@@ -391,6 +391,9 @@
       "contributors": "Count of contributors",
       "wordCount": "Count of words"
     },
+    "mediaBrowser": {
+      "title": "Media"
+    },
     "modal": {
       "snippetImport": {
         "title": "Import from Snippet",
