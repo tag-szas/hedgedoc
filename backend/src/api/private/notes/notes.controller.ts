@@ -37,6 +37,7 @@ import { RevisionDto } from '../../../revisions/revision.dto';
 import { RevisionsService } from '../../../revisions/revisions.service';
 import { User } from '../../../users/user.entity';
 import { UsersService } from '../../../users/users.service';
+import { Username } from '../../../utils/username';
 import { GetNoteInterceptor } from '../../utils/get-note.interceptor';
 import { MarkdownBody } from '../../utils/markdown-body.decorator';
 import { OpenApi } from '../../utils/openapi.decorator';
@@ -204,7 +205,7 @@ export class NotesController {
   async setUserPermission(
     @RequestUser() user: User,
     @RequestNote() note: Note,
-    @Param('userName') username: string,
+    @Param('userName') username: Username,
     @Body('canEdit') canEdit: boolean,
   ): Promise<NotePermissionsDto> {
     const permissionUser = await this.userService.getUserByUsername(username);
@@ -223,7 +224,7 @@ export class NotesController {
   async removeUserPermission(
     @RequestUser() user: User,
     @RequestNote() note: Note,
-    @Param('userName') username: string,
+    @Param('userName') username: Username,
   ): Promise<NotePermissionsDto> {
     try {
       const permissionUser = await this.userService.getUserByUsername(username);
@@ -285,7 +286,7 @@ export class NotesController {
   async changeOwner(
     @RequestUser() user: User,
     @RequestNote() note: Note,
-    @Body('newOwner') newOwner: string,
+    @Body('newOwner') newOwner: Username,
   ): Promise<NoteDto> {
     const owner = await this.userService.getUserByUsername(newOwner);
     return await this.noteService.toNoteDto(

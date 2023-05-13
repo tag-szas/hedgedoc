@@ -6,6 +6,7 @@
 import { Message, MessageType, RealtimeUser } from '@hedgedoc/commons';
 import { Listener } from 'eventemitter2';
 
+import { Username } from '../../utils/username';
 import { RealtimeConnection } from './realtime-connection';
 import { RealtimeNote } from './realtime-note';
 
@@ -16,7 +17,7 @@ export class RealtimeUserStatusAdapter {
   private readonly realtimeUser: RealtimeUser;
 
   constructor(
-    username: string | null,
+    username: Username | null,
     displayName: string,
     private connection: RealtimeConnection,
     private acceptCursorUpdateProvider: () => boolean,
@@ -30,7 +31,7 @@ export class RealtimeUserStatusAdapter {
   }
 
   private createInitialRealtimeUserState(
-    username: string | null,
+    username: Username | null,
     displayName: string,
     realtimeNote: RealtimeNote,
   ): RealtimeUser {
