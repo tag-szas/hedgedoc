@@ -4,34 +4,40 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-.cursor-0 {
-  --color: #780c0c;
-}
 
-.cursor-1 {
-  --color: #ff1111;
-}
+$colors: #ffffff,
+#00008f,
+#b60000,
+#008c00,
+#c34fff,
+#01a5ca,
+#ec9d00,
+#76ff00,
+#595354,
+#ff7598,
+#940073,
+#00f3cc,
+#4853ff,
+#a6a19a,
+#004301,
+#edb7ff,
+#8a6800,
+#6100a3,
+#5c0011,
+#fff585,
+#007b69,
+#92b853,
+#abd4ff,
+#7e79a3,
+#ff5401,
+#0a577d,
+#a8615c,
+#e700b9,
+#ffc3a6,
+#5b3500;
 
-.cursor-2 {
-  --color: #1149ff;
-}
-
-.cursor-3 {
-  --color: #11ff39;
-}
-
-.cursor-4 {
-  --color: #cb11ff;
-}
-
-.cursor-5 {
-  --color: #ffff00;
-}
-
-.cursor-6 {
-  --color: #00fff2;
-}
-
-.cursor-7 {
-  --color: #ff8000;
+@for $i from 1 through length($colors) {
+  .cursor-#{$i} {
+    --color: #{nth($colors,$i)}
+  }
 }

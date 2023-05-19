@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+import { createNumberRangeArray } from '../../../../common/number-range/number-range'
 import { createCursorCssClass } from './create-cursor-css-class'
 import { RemoteCursorMarker } from './remote-cursor-marker'
 import styles from './style.module.scss'
@@ -65,9 +66,8 @@ export const createCursorLayer = (): Extension =>
     class: styles.cursorLayer,
     update: isRemoteCursorUpdate,
     markers: (view) => {
-      return view.state.field(remoteCursorStateField).flatMap((remoteCursor) => {
-        const selectionRange = EditorSelection.cursor(remoteCursor.from)
-        return RemoteCursorMarker.createCursor(view, selectionRange, remoteCursor.displayName, remoteCursor.styleIndex)
+      return createNumberRangeArray(30).flatMap((index) => {
+        return RemoteCursorMarker.createCursor(view, EditorSelection.range(index, index), String(index), index)
       })
     }
   })
