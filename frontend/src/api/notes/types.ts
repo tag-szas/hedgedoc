@@ -16,7 +16,7 @@ export interface NoteMetadata {
   id: string
   aliases: Alias[]
   primaryAddress: string
-  title: string
+  title: string | null
   description: string
   tags: string[]
   updatedAt: string

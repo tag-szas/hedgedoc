@@ -9,6 +9,7 @@ export interface RevisionDetails extends RevisionMetadata {
   content: string
   patch: string
   edits: NoteEdit[]
+  title: string | null
 }
 
 export interface RevisionMetadata {
