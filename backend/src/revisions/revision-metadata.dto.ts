@@ -3,9 +3,15 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 import { BaseDto } from '../utils/base.dto.';
 import { Revision } from './revision.entity';
@@ -50,4 +56,33 @@ export class RevisionMetadataDto extends BaseDto {
   @IsNumber()
   @ApiProperty()
   anonymousAuthorCount: number;
+
+  /**
+   * Title of the note
+   * Does not contain any markup but might be empty
+   * @example "Shopping List"
+   */
+  @IsString()
+  @ApiPropertyOptional()
+  @IsOptional()
+  title: string | null;
+
+  /**
+   * Description of the note
+   * Does not contain any markup but might be empty
+   * @example Everything I want to buy
+   */
+  @IsString()
+  @ApiPropertyOptional()
+  @IsOptional()
+  description: string | null;
+
+  /**
+   * List of tags assigned to this note
+   * @example "['shopping', 'personal']
+   */
+  @IsArray()
+  @IsString({ each: true })
+  @ApiProperty()
+  tags: string[];
 }

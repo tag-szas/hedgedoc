@@ -49,8 +49,9 @@ export class NoteMetadataDto extends BaseDto {
    * @example "Shopping List"
    */
   @IsString()
-  @ApiProperty()
-  title: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  title: string | null;
 
   /**
    * Description of the note
@@ -58,8 +59,9 @@ export class NoteMetadataDto extends BaseDto {
    * @example Everything I want to buy
    */
   @IsString()
-  @ApiProperty()
-  description: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  description: string | null;
 
   /**
    * List of tags assigned to this note

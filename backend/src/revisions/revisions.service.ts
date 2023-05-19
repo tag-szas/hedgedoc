@@ -121,7 +121,19 @@ export class RevisionsService {
       createdAt: revision.createdAt,
       authorUsernames: revisionUserInfo.usernames,
       anonymousAuthorCount: revisionUserInfo.anonymousUserCount,
+      title: revision.title,
+      description: revision.description,
+      tags: await this.toTagList(revision),
     };
+  }
+
+  /**
+   * Map the tags of a revision to a string array of the tags names.
+   * @param {Note} revision - the note to use
+   * @return {string[]} string array of tags names
+   */
+  async toTagList(revision: Revision): Promise<string[]> {
+    return (await revision.tags).map((tag) => tag.name);
   }
 
   async toRevisionDto(revision: Revision): Promise<RevisionDto> {
@@ -131,6 +143,9 @@ export class RevisionsService {
       content: revision.content,
       length: revision.length,
       createdAt: revision.createdAt,
+      title: revision.title,
+      tags: await this.toTagList(revision),
+      description: revision.description,
       authorUsernames: revisionUserInfo.usernames,
       anonymousAuthorCount: revisionUserInfo.anonymousUserCount,
       patch: revision.patch,

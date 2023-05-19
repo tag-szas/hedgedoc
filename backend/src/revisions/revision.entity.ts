@@ -4,6 +4,17 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import {
+  convertRawFrontmatterToNoteFrontmatter,
+  extractFirstHeading,
+  extractFrontmatter,
+  generateNoteTitle,
+  NoteFrontmatter,
+  parseRawFrontmatterFromYaml,
+} from '@hedgedoc/commons';
+import { defaultNoteFrontmatter } from '@hedgedoc/commons';
+import { parseDocument } from 'htmlparser2';
+import MarkdownIt from 'markdown-it';
+import {
   Column,
   CreateDateColumn,
   Entity,
@@ -14,6 +25,7 @@ import {
 } from 'typeorm';
 
 import { Note } from '../notes/note.entity';
+import { Tag } from '../notes/tag.entity';
 import { Edit } from './edit.entity';
 
 /**
@@ -33,6 +45,25 @@ export class Revision {
     type: 'text',
   })
   patch: string;
+
+  @Column({
+    nullable: true,
+    type: 'text',
+  })
+  title: string | null;
+
+  @Column({
+    nullable: true,
+    type: 'text',
+  })
+  description: string | null;
+
+  @ManyToMany((_) => Tag, (tag) => tag.revisions, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinTable()
+  tags: Promise<Tag[]>;
 
   /**
    * The note content at this revision.
@@ -79,13 +110,48 @@ export class Revision {
     note: Note,
     yjsStateVector?: number[],
   ): Omit<Revision, 'id' | 'createdAt'> {
+    const frontmatter = this.parseFrontmatter(content);
+    const title = generateNoteTitle(frontmatter, () =>
+      this.extractFirstHeadingFromContent(content),
+    );
+    const description = frontmatter?.description ?? null;
+
     const newRevision = new Revision();
     newRevision.patch = patch;
     newRevision.content = content;
     newRevision.length = content.length;
+    newRevision.title = title;
+    newRevision.description = description;
+    newRevision.tags = Promise.resolve([]);
     newRevision.note = Promise.resolve(note);
     newRevision.edits = Promise.resolve([]);
     newRevision.yjsStateVector = yjsStateVector ?? null;
     return newRevision;
+  }
+
+  private static parseFrontmatter(
+    content: string,
+  ): NoteFrontmatter | undefined {
+    const rawText = extractFrontmatter(content.split('\n'))?.rawText;
+
+    if (!rawText) {
+      return undefined;
+    }
+
+    const rawDataValidation = parseRawFrontmatterFromYaml(rawText);
+    if (rawDataValidation.error !== undefined) {
+      return defaultNoteFrontmatter;
+    }
+
+    return convertRawFrontmatterToNoteFrontmatter(rawDataValidation.value);
+  }
+
+  private static extractFirstHeadingFromContent(
+    content: string,
+  ): string | undefined {
+    const markdownIt = new MarkdownIt('default');
+    const html = markdownIt.render(content);
+    const document = parseDocument(html);
+    return extractFirstHeading(document);
   }
 }

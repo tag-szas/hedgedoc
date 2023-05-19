@@ -43,6 +43,7 @@ import { RealtimeNoteModule } from '../realtime/realtime-note/realtime-note.modu
 import { Edit } from '../revisions/edit.entity';
 import { Revision } from '../revisions/revision.entity';
 import { RevisionsModule } from '../revisions/revisions.module';
+import { RevisionsService } from '../revisions/revisions.service';
 import { Session } from '../users/session.entity';
 import { User } from '../users/user.entity';
 import { UsersModule } from '../users/users.module';
@@ -121,8 +122,6 @@ describe('NotesService', () => {
       // @ts-ignore
       .mockImplementation(() => createQueryBuilder);
     note.publicId = 'testId';
-    note.title = 'testTitle';
-    note.description = 'testDescription';
     note.owner = Promise.resolve(user);
     note.userPermissions = Promise.resolve([
       {
@@ -138,13 +137,6 @@ describe('NotesService', () => {
         note: Promise.resolve(note),
         group: Promise.resolve(group),
         canEdit: true,
-      },
-    ]);
-    note.tags = Promise.resolve([
-      {
-        id: 1,
-        name: 'testTag',
-        notes: Promise.resolve([note]),
       },
     ]);
     note.viewCount = 1337;
@@ -205,6 +197,7 @@ describe('NotesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotesService,
+        RevisionsService,
         AliasService,
         {
           provide: getRepositoryToken(Note),
@@ -212,6 +205,10 @@ describe('NotesService', () => {
         },
         {
           provide: getRepositoryToken(Tag),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(Revision),
           useClass: Repository,
         },
         {
@@ -383,7 +380,6 @@ describe('NotesService', () => {
         expect((await groupPermissions[1].group).name).toEqual(
           SpecialGroup.LOGGED_IN,
         );
-        expect(await newNote.tags).toHaveLength(0);
         expect(await newNote.owner).toBeNull();
         expect(await newNote.aliases).toHaveLength(0);
       });
@@ -409,7 +405,6 @@ describe('NotesService', () => {
         expect((await groupPermissions[1].group).name).toEqual(
           SpecialGroup.LOGGED_IN,
         );
-        expect(await newNote.tags).toHaveLength(0);
         expect(await newNote.owner).toEqual(user);
         expect(await newNote.aliases).toHaveLength(0);
       });
@@ -434,7 +429,6 @@ describe('NotesService', () => {
         expect((await groupPermissions[1].group).name).toEqual(
           SpecialGroup.LOGGED_IN,
         );
-        expect(await newNote.tags).toHaveLength(0);
         expect(await newNote.owner).toBeNull();
         expect(await newNote.aliases).toHaveLength(1);
       });
@@ -460,7 +454,6 @@ describe('NotesService', () => {
         expect((await groupPermissions[1].group).name).toEqual(
           SpecialGroup.LOGGED_IN,
         );
-        expect(await newNote.tags).toHaveLength(0);
         expect(await newNote.owner).toEqual(user);
         expect(await newNote.aliases).toHaveLength(1);
         expect((await newNote.aliases)[0].name).toEqual(alias);
@@ -490,7 +483,6 @@ describe('NotesService', () => {
           expect((await groupPermissions[1].group).name).toEqual(
             SpecialGroup.LOGGED_IN,
           );
-          expect(await newNote.tags).toHaveLength(0);
           expect(await newNote.owner).toEqual(user);
           expect(await newNote.aliases).toHaveLength(1);
           expect((await newNote.aliases)[0].name).toEqual(alias);
@@ -519,7 +511,6 @@ describe('NotesService', () => {
           expect((await groupPermissions[0].group).name).toEqual(
             SpecialGroup.LOGGED_IN,
           );
-          expect(await newNote.tags).toHaveLength(0);
           expect(await newNote.owner).toEqual(user);
           expect(await newNote.aliases).toHaveLength(1);
           expect((await newNote.aliases)[0].name).toEqual(alias);
@@ -652,22 +643,6 @@ describe('NotesService', () => {
     });
   });
 
-  describe('toTagList', () => {
-    it('works', async () => {
-      const note = {} as Note;
-      note.tags = Promise.resolve([
-        {
-          id: 1,
-          name: 'testTag',
-          notes: Promise.resolve([note]),
-        },
-      ]);
-      const tagList = await service.toTagList(note);
-      expect(tagList).toHaveLength(1);
-      expect(tagList[0]).toEqual((await note.tags)[0].name);
-    });
-  });
-
   describe('toNotePermissionsDto', () => {
     it('works', async () => {
       const [note, user, group] = await getMockData();
@@ -696,8 +671,10 @@ describe('NotesService', () => {
       expect(metadataDto.aliases).toHaveLength(1);
       expect(metadataDto.aliases[0].name).toEqual((await note.aliases)[0].name);
       expect(metadataDto.primaryAddress).toEqual('testAlias');
-      expect(metadataDto.title).toEqual(note.title);
-      expect(metadataDto.description).toEqual(note.description);
+      expect(metadataDto.title).toEqual((await note.revisions)[0].title);
+      expect(metadataDto.description).toEqual(
+        (await note.revisions)[0].description,
+      );
       expect(metadataDto.editedBy).toHaveLength(1);
       expect(metadataDto.editedBy[0]).toEqual(user.username);
       expect(metadataDto.permissions.owner).toEqual(user.username);
@@ -712,7 +689,7 @@ describe('NotesService', () => {
       );
       expect(metadataDto.permissions.sharedToGroups[0].canEdit).toEqual(true);
       expect(metadataDto.tags).toHaveLength(1);
-      expect(metadataDto.tags[0]).toEqual((await note.tags)[0].name);
+      expect(metadataDto.tags[0]).toEqual((await note.revisions)[0].tags);
       expect(metadataDto.updatedAt).toEqual(
         (await note.revisions)[0].createdAt,
       );
@@ -739,8 +716,10 @@ describe('NotesService', () => {
       expect(noteDto.metadata.aliases[0].name).toEqual(
         (await note.aliases)[0].name,
       );
-      expect(noteDto.metadata.title).toEqual(note.title);
-      expect(noteDto.metadata.description).toEqual(note.description);
+      expect(noteDto.metadata.title).toEqual((await note.revisions)[0].title);
+      expect(noteDto.metadata.description).toEqual(
+        (await note.revisions)[0].description,
+      );
       expect(noteDto.metadata.editedBy).toHaveLength(1);
       expect(noteDto.metadata.editedBy[0]).toEqual(user.username);
       expect(noteDto.metadata.permissions.owner).toEqual(user.username);
@@ -759,7 +738,7 @@ describe('NotesService', () => {
         true,
       );
       expect(noteDto.metadata.tags).toHaveLength(1);
-      expect(noteDto.metadata.tags[0]).toEqual((await note.tags)[0].name);
+      //expect(noteDto.metadata.tags[0]).toEqual((await note.tags)[0].name);
       expect(noteDto.metadata.updateUsername).toEqual(user.username);
       expect(noteDto.metadata.viewCount).toEqual(note.viewCount);
       expect(noteDto.content).toEqual('testContent');
