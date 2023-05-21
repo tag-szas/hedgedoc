@@ -31,7 +31,7 @@ export const PermissionAddEntryField: React.FC<PermissionAddEntryFieldProps & Pe
   const { t } = useTranslation()
 
   const [newEntryIdentifier, setNewEntryIdentifier] = useState('')
-  const onChange = useOnInputChange(setNewEntryIdentifier)
+  const onChange = useOnInputChange(setNewEntryIdentifier, { makeLowercase: true })
 
   const onSubmit = useCallback(() => {
     onAddEntry(newEntryIdentifier)

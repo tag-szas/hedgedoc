@@ -44,7 +44,7 @@ export const ViaLocal: React.FC = () => {
     [username, password]
   )
 
-  const onUsernameChange = useOnInputChange(setUsername)
+  const onUsernameChange = useOnInputChange(setUsername, { makeLowercase: true })
   const onPasswordChange = useOnInputChange(setPassword)
 
   return (

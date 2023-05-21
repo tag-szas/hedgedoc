@@ -62,7 +62,7 @@ export const RegisterPage: NextPage = () => {
     return error?.backendErrorName === 'PasswordTooWeakError'
   }, [error])
 
-  const onUsernameChange = useOnInputChange(setUsername)
+  const onUsernameChange = useOnInputChange(setUsername, { makeLowercase: true })
   const onDisplayNameChange = useOnInputChange(setDisplayName)
   const onPasswordChange = useOnInputChange(setPassword)
   const onPasswordAgainChange = useOnInputChange(setPasswordAgain)
