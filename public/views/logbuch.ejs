@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('./build/cover-pack-header') %>
+</head>
+
+<body translate="no">
+    <div class="signin-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="false">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+    
+                <div class="modal-body" style="text-align: center;">
+                    <h4>Logbuch öffnen</h4>
+                    <form data-toggle="validator" role="form" class="form-horizontal" method="post" enctype="application/x-www-form-urlencoded">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" name="user" placeholder="Name" required>
+                                <span class="help-block control-label with-errors" style="display: inline;"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input type="password" class="form-control" name="password" placeholder="Password" required autofocus>
+                                <span class="help-block control-label with-errors" style="display: inline;"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-primary" formaction="http://logbuch.io:3000/logbuch" method="post">Öffnen</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+

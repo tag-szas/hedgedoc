@@ -225,6 +225,8 @@ app.locals.enableDropBoxSave = config.isDropboxEnable
 app.locals.enableGitHubGist = config.isGitHubEnable
 app.locals.enableGitlabSnippets = config.isGitlabSnippetsEnable
 
+app.use('/logbuch',express.urlencoded({ extended: false }))
+
 app.use(require('./lib/web/baseRouter'))
 app.use(require('./lib/web/statusRouter'))
 app.use(require('./lib/web/auth'))
@@ -232,6 +234,7 @@ app.use(require('./lib/web/historyRouter'))
 app.use(require('./lib/web/userRouter'))
 app.use(require('./lib/web/imageRouter'))
 app.use(require('./lib/web/note/router'))
+
 
 // response not found if no any route matxches
 app.get('*', function (req, res) {
@@ -369,3 +372,5 @@ function handleTermSignals () {
 process.on('SIGINT', handleTermSignals)
 process.on('SIGTERM', handleTermSignals)
 process.on('SIGQUIT', handleTermSignals)
+
+
