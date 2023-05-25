@@ -1032,7 +1032,7 @@ export const md = markdownit('default', {
 })
 window.md = md
 
-md.use(require('markdown-it-wikilinks')({ baseURL: '/' }))
+md.use(require('markdown-it-wikilinks')({ baseURL: '/', uriSuffix : '' }))  
 md.use(require('markdown-it-abbr'))
 md.use(require('markdown-it-footnote'))
 md.use(require('markdown-it-deflist'))
