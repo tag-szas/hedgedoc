@@ -574,8 +574,11 @@ export function postProcess (code) {
   // link should open in new window or tab
   // also add noopener to prevent clickjacking
   // See details: https://mathiasbynens.github.io/rel-noopener/
-  result.find('a:not([href^="#"]):not([target])').attr('target', '_blank').attr('rel', 'noopener')
 
+  //                                   exlude wikilinks
+  result.find('a:not([href^="#"]):not([href^="./"]):not([target])').attr('target', '_blank').attr('rel', 'noopener')
+
+  
   // If it's hashtag link then make it base uri independent
   result.find('a[href^="#"]').each((index, linkTag) => {
     const currentLocation = new URL(window.location)
@@ -1029,6 +1032,7 @@ export const md = markdownit('default', {
 })
 window.md = md
 
+md.use(require('markdown-it-wikilinks')({ baseURL: '/' }))
 md.use(require('markdown-it-abbr'))
 md.use(require('markdown-it-footnote'))
 md.use(require('markdown-it-deflist'))
