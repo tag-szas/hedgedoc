@@ -21,7 +21,6 @@ RUN mv /hedgedoc/package.new.json /hedgedoc/package.json
 WORKDIR /hedgedoc
 RUN corepack enable && yarn install --immutable
 RUN yarn run build
-RUN yarn workspaces focus --all --production
 
 
 FROM base

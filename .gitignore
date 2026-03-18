@@ -31,6 +31,8 @@ site/
 
 # only track Dockerfile in srv/
 srv/*
+!srv/debian/
+srv/debian/*
 !srv/debian/Dockerfile
 
 # Yarn 2+ without zero-installs
