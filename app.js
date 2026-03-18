@@ -12,6 +12,7 @@ const session = require('express-session')
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const fs = require('fs')
 const path = require('path')
+const { Server } = require('socket.io')
 
 const morgan = require('morgan')
 const passportSocketIo = require('passport.socketio')
@@ -81,7 +82,16 @@ if (config.enableStatsApi) {
 }
 
 // socket io
-const io = require('socket.io')(server, { cookie: false })
+const io = new Server(server, {
+  pingInterval: config.heartbeatInterval,
+  pingTimeout: config.heartbeatTimeout,
+  cookie: false,
+  cors: {
+    origin: config.serverURL,
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+})
 
 // others
 const realtime = require('./lib/realtime.js')
@@ -126,7 +136,8 @@ app.use(csp.addNonceToLocals)
 // https://helmetjs.github.io/docs/csp/
 if (config.csp.enable) {
   app.use(helmet.contentSecurityPolicy({
-    directives: csp.computeDirectives()
+    directives: csp.computeDirectives(),
+    useDefaults: false
   }))
 } else {
   logger.info('Content-Security-Policy is disabled. This may be a security risk.')
@@ -145,11 +156,30 @@ app.use(cookieParser())
 app.use(i18n.init)
 
 // routes without sessions
+// security headers for uploads
+app.use('/uploads', (req, res, next) => {
+  res.set('Content-Disposition', 'attachment')
+  res.set('Content-Security-Policy', "default-src 'none'; sandbox")
+  next()
+})
+
 // static files
-app.use('/', express.static(path.join(__dirname, '/public'), { maxAge: config.staticCacheTime, index: false, redirect: false }))
-app.use('/docs', express.static(path.resolve(__dirname, config.docsPath), { maxAge: config.staticCacheTime, redirect: false }))
-app.use('/uploads', express.static(path.resolve(__dirname, config.uploadsPath), { maxAge: config.staticCacheTime, redirect: false }))
-app.use('/default.md', express.static(path.resolve(__dirname, config.defaultNotePath), { maxAge: config.staticCacheTime }))
+app.use('/', express.static(path.join(__dirname, '/public'), {
+  maxAge: config.staticCacheTime,
+  index: false,
+  redirect: false
+}))
+app.use('/docs', express.static(path.resolve(__dirname, config.docsPath), {
+  maxAge: config.staticCacheTime,
+  redirect: false
+}))
+app.use('/uploads', express.static(path.resolve(__dirname, config.uploadsPath), {
+  maxAge: config.staticCacheTime,
+  redirect: false
+}))
+app.use('/default.md', express.static(path.resolve(__dirname, config.defaultNotePath), {
+  maxAge: config.staticCacheTime
+}))
 
 // session
 app.use(useUnless(['/status', '/metrics', '/_health'], session({
@@ -255,9 +285,6 @@ io.use(passportSocketIo.authorize({
   success: realtime.onAuthorizeSuccess,
   fail: realtime.onAuthorizeFail
 }))
-// socket.io heartbeat
-io.set('heartbeat interval', config.heartbeatInterval)
-io.set('heartbeat timeout', config.heartbeatTimeout)
 // socket.io connection
 io.sockets.on('connection', realtime.connection)
 
@@ -332,8 +359,9 @@ function handleTermSignals () {
   alreadyHandlingTermSignals = true
   realtime.maintenance = true
   // disconnect all socket.io clients
-  Object.keys(io.sockets.sockets).forEach(function (key) {
-    const socket = io.sockets.sockets[key]
+  Array.from(io.sockets.sockets.keys()).forEach(function (key) {
+    const socket = io.sockets.sockets.get(key)
+    if (!socket) return
     // notify client server going into maintenance status
     socket.emit('maintenance')
     setTimeout(function () {
@@ -369,6 +397,13 @@ function handleTermSignals () {
           process.exit(0)
         }
       })
+    } else {
+      logger.warn(`Real time server not ready for shutdown, trying again (${currentCleanTry}/${maxCleanTries})...`)
+      currentCleanTry++
+      if (currentCleanTry > maxCleanTries) {
+        logger.error('Could not save note revisions after shutdown! Exiting.')
+        process.exit(1)
+      }
     }
   }, 200)
 }

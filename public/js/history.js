@@ -1,15 +1,14 @@
-/* eslint-env browser, jquery */
 /* eslint no-console: ["error", { allow: ["warn", "error", "debug"] }] */
 /* global serverurl, moment */
 
 import store from 'store'
-import S from 'string'
 import LZString from 'lz-string'
 import url from 'wurl'
 
 import {
   checkNoteIdValid,
-  encodeNoteId
+  encodeNoteId,
+  escapeHtml
 } from './utils'
 
 import {
@@ -220,7 +219,7 @@ export function getStorageHistory (callback) {
     if (typeof data === 'string') { data = JSON.parse(data) }
     callback(data)
   }
-  // eslint-disable-next-line n/no-callback-literal
+
   callback([])
 }
 
@@ -276,8 +275,8 @@ function parseToHistory (list, notehistory, callback) {
       notehistory[i].fromNow = timestamp.fromNow()
       notehistory[i].time = timestamp.format('llll')
       // prevent XSS
-      notehistory[i].text = S(notehistory[i].text).escapeHTML().s
-      notehistory[i].tags = (notehistory[i].tags && notehistory[i].tags.length > 0) ? S(notehistory[i].tags).escapeHTML().s.split(',') : []
+      notehistory[i].text = escapeHtml(notehistory[i].text)
+      notehistory[i].tags = (notehistory[i].tags && notehistory[i].tags.length > 0) ? escapeHtml(notehistory[i].tags).split(',') : []
       // add to list
       if (notehistory[i].id && list.get('id', notehistory[i].id).length === 0) { list.add(notehistory[i]) }
     }
@@ -296,7 +295,7 @@ export function postHistoryToServer (noteId, data, callback) {
 
 export function deleteServerHistory (noteId, callback) {
   $.ajax({
-    url: `${serverurl}/history${noteId ? '/' + noteId : ''}`,
+    url: `${serverurl}/history${noteId ? '/' + noteId : ''}?token=${window.userToken}`,
     type: 'DELETE'
   })
     .done(result => callback(null, result))

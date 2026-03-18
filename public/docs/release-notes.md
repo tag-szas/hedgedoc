@@ -1,5 +1,131 @@
 # Release Notes
 
+## <i class="fa fa-tag"></i> 1.10.7 <i class="fa fa-calendar-o"></i> 2026-02-24
+
+### Bugfixes
+- Random colors for user's cursors and selections are now always in hex format to avoid conversion errors
+- Correctly close realtime connections if they disconnect during connection creation
+- manage_users CLI does not silently drop errors
+
+## <i class="fa fa-tag"></i> 1.10.6 <i class="fa fa-calendar-o"></i> 2026-02-04
+
+### Security fixes
+
+This release contains two medium severity security fixes:
+- [GHSA-x74j-jmf9-534w](https://github.com/hedgedoc/hedgedoc/security/advisories/GHSA-x74j-jmf9-534w) reports a bug where security headers for upload files were not set correctly.
+- [GHSA-672m-p72w-gw28](https://github.com/hedgedoc/hedgedoc/security/advisories/GHSA-672m-p72w-gw28) reports potential security issues with limited script execution in uploaded SVG files.
+
+Thanks to [@HUSEYNKHANLI](https://github.com/HUSEYNKHANLI) and [@drkim-dev](https://github.com/drkim-dev) for reporting!
+
+### Maintenance
+
+- Dependency updates
+- Enhancements in the documentation at [docs.hedgedoc.org](https://docs.hedgedoc.org)
+
+### Contributors
+- [xenein](https://github.com/xenein) (#6322)
+
+## <i class="fa fa-tag"></i> 1.10.5 <i class="fa fa-calendar-o"></i> 2025-12-06
+
+This release is just a fix for the docker container. It does not contain any
+changes to HedgeDoc itself.
+
+### Bugfixes
+- Fix the bundled healthcheck in the docker container
+
+## <i class="fa fa-tag"></i> 1.10.4 <i class="fa fa-calendar-o"></i> 2025-12-05
+
+### Security fixes
+
+This release contains two low severity security fixes:
+- [GHSA-gmgw-rcmh-7x47](https://github.com/hedgedoc/hedgedoc/security/advisories/GHSA-gmgw-rcmh-7x47) reports potential cross-site side-effects due to not applying sandboxing to iframes.
+- [GHSA-6wm6-3vpq-6qvv](https://github.com/hedgedoc/hedgedoc/security/advisories/GHSA-6wm6-3vpq-6qvv) reports a possible CSRF vulnerability when using certain social login providers because the `state` parameter is not used and checked.
+
+### Enhancements
+- Add `enableUploads` (`CMD_ENABLE_UPLOADS`) config option to restrict uploads to `registered` users, `all` users or
+  `none` to completely disable uploads.
+- Allow links to protocols such as xmpp, webcal or geo
+- Switch from deprecated shortid to nanoid module, with 10 character long aliases in "public" links
+- Ensure compatibility with Node 24
+- Protect user history from accidental or malicious deletion by adding a CSRF-like token
+- Many enhancements in the documentation at [docs.hedgedoc.org](https://docs.hedgedoc.org)
+
+### Bugfixes
+- Ignore the healthcheck endpoint in the "too busy" limiter
+- Send the referrer origin for YouTube embeddings due to their requirement
+- Force kill the server after a timeout when waiting for the realtime server to close connections on shutdown
+- Secure iframes with `credentialless` and `sandbox` attributes
+- Fix regexes for `[time=...]`, `[name=...]` and `[color=...]` shortcodes in lists
+- Use `state` parameter for OAuth2 flows and PKCE where applicable
+
+### Node compatibility
+- Support for Node 24 was verified. The docker image now uses Node 24 as its base image.
+
+### Contributors
+- [Nora Matthias Schiffer](https://github.com/neocturne) (#6096)
+- [4censord](https://github.com/4censord) (#6102)
+- [Zachery Faria](https://github.com/ZacheryFaria) (#6105)
+- [pl7ofit](https://github.com/pl7ofit) (#6106)
+- [Lars Kiesow](https://github.com/lkiesow) (#6107)
+- [Kim Brose](https://github.com/HarHarLinks) (#6114)
+- [Achilleas Pipinellis](https://github.com/axilleas) (#6119)
+- [Andreas Boesen](https://github.com/Happy86) (#6148, #6149)
+- [Thary](https://github.com/tharynot) (#6155)
+
+## <i class="fa fa-tag"></i> 1.10.3 <i class="fa fa-calendar-o"></i> 2025-04-09
+
+### Security fixes
+
+This release fixes a security issue of a possible XSS exploit which can be planted via a malicous SVG file upload.
+
+See [GHSA-3983-rrqh-mvx5](https://github.com/hedgedoc/hedgedoc/security/advisories/GHSA-3983-rrqh-mvx5) for more details
+
+### Enhancements
+- Add config options `CMD_SAML_WANT_ASSERTIONS_SIGNED` and `CMD_SAML_WANT_AUTHN_RESPONSE_SIGNED` for SAML auth, since
+  some instances didn't comply with the new defaults of `@node-saml/passport-saml`
+
+## <i class="fa fa-tag"></i> 1.10.2 <i class="fa fa-calendar-o"></i> 2025-02-14
+
+**PLEASE CHECK THIS IF YOU USE SAML AUTHENTICATION:**
+This release had to set default values for the username and email address attribute mapping for SAML authentication for
+security reasons.
+If you use SAML authentication, please make sure to update your SAML configuration accordingly.  
+See: https://docs.hedgedoc.org/configuration/#saml-login `CMD_SAML_ATTRIBUTE_USERNAME` or `CMD_SAML_ATTRIBUTE_EMAIL`  
+
+### Bugfixes
+- Check if a valid user id is present when using OAuth2
+- Abort SAML login if NameID is undefined instead of logging in with a user named "undefined" (Thanks [@Haanifee](https://github.com/Haanifee))
+- Set default values for username and email attribute mapping in SAML configuration
+
+## <i class="fa fa-tag"></i> 1.10.1 <i class="fa fa-calendar-o"></i> 2025-02-02
+
+This release fixes a security issue where brute-forcing local email/passwords is possible because of missing rate-limits.
+We recommend upgrading as soon as possible, if you use local logins.
+
+See also <https://github.com/hedgedoc/hedgedoc/security/advisories/GHSA-6w39-x2c6-6mpf>
+
+This release changes the default configuration of the HSTS preload attribute to false for compliance with the
+HSTS preload list requirements. This shouldn't impact any instance. However, if you intend to use HSTS preloading
+you should enable the config setting `hsts.preload` to `true` or set environment variable `CMD_HSTS_PRELOAD=true`.
+
+This release deprecates support for Node 18.
+As the LTS support for 18 runs out in April 2025, the next release will only work with Node 20 and upwards.
+Consider this your early warning to upgrade any running instances to at least Node 20.
+
+### Enhancements
+- Add fixed rate-limiting to the login and register endpoints
+- Add configurable rate-limiting to the new notes endpoint
+
+### Bugfixes
+- Fix a crash when cannot read user profile in OAuth ([#5850](https://github.com/hedgedoc/hedgedoc/pull/5850) by [@lautaroalvarez](https://github.com/lautaroalvarez))
+- Fix CSP Header for mermaid embedded images ([#5887](https://github.com/hedgedoc/hedgedoc/pull/5887) by [@domrim](https://github.com/domrim))
+- Change default of HSTS preload to false for compliance with the HSTS preload list requirements ([#5913](https://github.com/hedgedoc/hedgedoc/issues/5913) by [@SvizelPritula](https://github.com/SvizelPritula))
+
+### Contributors
+
+- [Dominik Rimpf](https://github.com/domrim)
+- [Lautaro Alvarez](https://github.com/lautaroalvarez)
+
 ## <i class="fa fa-tag"></i> 1.10.0 <i class="fa fa-calendar-o"></i> 2024-09-01
 
 This release fixes a security issue when using MySQL/MariaDB. We recommend upgrading as soon as possible, when you use

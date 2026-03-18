@@ -42,12 +42,14 @@ nav:
       - 'Slide Options': references/slide-options.md
       - 'URL Scheme': references/url-scheme.md
       - 'YAML Metadata': references/yaml-metadata.md
+      - 'Permissions': references/permissions.md
   - Developer:
       - 'Getting Started': dev/getting-started.md
       - API: dev/api.md
       - 'Operational Transformation': dev/ot.md
       - Webpack: dev/webpack.md
       - 'Documentation': dev/documentation.md
+      - 'Release Checklist': dev/release_checklist.md
   - FAQ: faq.md
 markdown_extensions:
   - toc:

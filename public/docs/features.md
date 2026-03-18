@@ -30,9 +30,9 @@ Or meet us on [**Matrix**](https://chat.hedgedoc.org) for dev-talk and interacti
 
 ### Night Mode
 
-When you are tired of a white screen and like a night mode, click on the little moon <i class="fa fa-moon-o"></i> and turn on the night view of HedgeDoc.
+When you are tired of a white screen and like a night mode, click on the little moon <i class="fa fa-moon-o"></i> in the header bar and turn on the night view of HedgeDoc.
 
-The editor view, which is in night mode by default, can also be toggled between night and day view using the the little sun<i class="fa fa-sun-o fa-fw"></i>.
+The editor view, which is in night mode by default, can also be toggled between night and day view using the the little sun<i class="fa fa-sun-o fa-fw"></i>. It is below the editor in the bottom bar.
 
 ### Image Upload
 
@@ -58,7 +58,7 @@ Similarly to the *save* feature, you can also import a Markdown file from **Drop
 ### Permissions
 
 It is possible to change the access permission of a note through the little button on the top right of the view.
-There are four possible options:
+There are six possible options:
 
 |                                                                                      | Owner read/write | Signed-in read | Signed-in write | Guest read | Guest write |
 |:------------------------------------------------------------------------------------ |:----------------:|:--------------:|:---------------:|:----------:|:-----------:|
@@ -238,15 +238,11 @@ When you’re a carpenter making a beautiful chest of drawers, you’re not goin
 
 {%gist schacon/4277%}
 
-#### SlideShare
-
-{%slideshare briansolis/26-disruptive-technology-trends-2016-2018-56796196 %}
-
 #### PDF
 
 **Caution: this might be blocked by your browser if not using an `https` URL.**
 Note that not all servers allow embedding their content. See [our FAQ](https://docs.hedgedoc.org/faq/#why-cant-i-embed-some-pdfs) for details.
-{%pdf https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf %}
+{%pdf https://pdfobject.com/pdf/sample-3pp.pdf %}
 
 ### MathJax
 
