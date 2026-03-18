@@ -1,5 +1,92 @@
 # Release Notes
 
+## <i class="fa fa-tag"></i> 1.10.0 <i class="fa fa-calendar-o"></i> 2024-09-01
+
+This release fixes a security issue when using MySQL/MariaDB. We recommend upgrading as soon as possible, when you use
+this database.
+
+**Please note:** This release dropped support for Node 16, which is end-of-life since September 2023.
+You now need at least Node 18 to run HedgeDoc. We recommend to use the latest LTS release of Node.js.
+
+### Security Fixes
+- [GHSA-pjf2-269h-cx7p: MySQL & free URL mode allows to hide existing notes](https://github.com/hedgedoc/hedgedoc/security/advisories/GHSA-pjf2-269h-cx7p)
+
+### Features
+- Add `disableNoteCreation` config option for read-only instances
+
+### Enhancements
+- Add a pointer to Mermaid 9.1.7 documentation, which is what HedgeDoc 1 supports.
+- Compatibility with Node.js 22 is now checked in CI
+
+### Bugfixes
+- Fix a crash when having numeric-only values in opengraph frontmatter
+- Fix unnecessary session creation on healthcheck endpoint
+- Fix invalid metadata being sent for minio uploads
+- Fix screen readers announcing headings twice
+- Fix a crash when receiving unexpected OAuth profile data
+- Fix some cases of HedgeDoc not redirecting to the previous page after login
+- Fix heading anchor links referencing an invalid URL
+- Our `meta-marked` package is now published to NPM, fixing some installation issues
+
+### Contributors
+- Axel (translator)
+- Eduard (translator)
+- Jordi Mallach (translator)
+- José M. (translator)
+- Meskó Balázs (translator)
+- TheInfamousToTo (translator)
+- Tobias (translator)
+- Úr Balázs (translator)
+
+## <i class="fa fa-tag"></i> 1.9.9 <i class="fa fa-calendar-o"></i> 2023-07-30
+
+HedgeDoc has a new slogan! See [our announcement](https://community.hedgedoc.org/t/and-the-new-slogan-is/) for the details.
+
+This release fixes a security issue. We recommend upgrading as soon as possible.
+
+### Security Fixes
+- [CVE-2023-38487: API allows to hide existing notes](https://github.com/hedgedoc/hedgedoc/security/advisories/GHSA-7494-7hcf-vxpg)
+
+### Enhancements
+- Docker secrets can now be used to provide OAuth2 client secrets ([#4196](https://github.com/hedgedoc/hedgedoc/pull/4196) by [@DennisGaida](https://github.com/DennisGaida))
+- Document how to set up Azure Active Directory authentication ([#4413](https://github.com/hedgedoc/hedgedoc/pull/4413) by [@pramitsingh0](https://github.com/pramitsingh0))
+- Add YAML metadata to documentation page ([#4371](https://github.com/hedgedoc/hedgedoc/pull/4371) by [@JunedKhan101](https://github.com/JunedKhan101))
+
+### Bugfixes
+- Fix non-existing notes being created in some cases, instead of returning a 404 error
+
+### Contributors
+- Jordi Mallach (translator)
+- sujade (translator)
+
+## <i class="fa fa-tag"></i> 1.9.8 <i class="fa fa-calendar-o"></i> 2023-06-04
+
+**Please note:** This release dropped support for Node 14, which is end-of-life since May 2023.
+You now need at least Node 16 to run HedgeDoc. We recommend to use the latest LTS release of Node.js.
+
+This release switches to Yarn 3 for dependency management, as Yarn 1 has bugs preventing us from upgrading some dependencies.
+If you install HedgeDoc manually, run `bin/setup` again for instructions. Other installation methods should not require
+special actions.
+
+### Enhancements
+- Extend boolean environment variable parsing with other positive answers and case insensitivity
+- Allow setting of `documentMaxLength` via `CMD_DOCUMENT_MAX_LENGTH` environment variable (contributed by [@jmallach](https://github.com/jmallach))
+- Add dedicated healthcheck endpoint at /_health that is less resource intensive than /status
+- Compatibility with Node.js 18 and later
+- Add support for the arm64 architecture in the docker image
+- Add a config option to disable the `/status` and `/metrics` endpoints
+
+### Bugfixes
+- Fix that permission errors can break existing connections to a note, causing inconsistent note content and changes not being saved (contributed by [@julianrother](https://github.com/julianrother))
+- Fix speaker notes not showing up in the presentation view
+- Fix issues with upgrading some dependencies by upgrading to Yarn 3
+- Fix macOS compatibility of `bin/setup` script
+
+### Contributors
+- UwYFmLpoKtYn (translator)
+- Pub (translator)
+- SnowCode (translator)
+
 ## <i class="fa fa-tag"></i> 1.9.7 <i class="fa fa-calendar-o"></i> 2023-02-19
 
 ### Bugfixes

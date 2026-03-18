@@ -4,7 +4,7 @@
    key, Dropbox, Visibility */
 
 import TurndownService from 'turndown'
-import CodeMirror from 'codemirror/lib/codemirror.js'
+import CodeMirror from '@hedgedoc/codemirror-5/lib/codemirror.js'
 
 import 'jquery-ui/ui/widgets/resizable'
 import 'jquery-ui/themes/base/resizable.css'
@@ -1087,7 +1087,7 @@ function changeMode (type) {
   }
   if (appState.currentMode !== modeType.edit) {
     $(document.body).css('background-color', 'white')
-    updateView()
+    refreshView()
   } else {
     $(document.body).css(
       'background-color',

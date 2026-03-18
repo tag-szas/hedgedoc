@@ -28,9 +28,11 @@ nav:
           - Nextcloud: guides/auth/nextcloud.md
           - Twitter: guides/auth/twitter.md
           - Authelia: guides/auth/authelia.md
+          - Microsoft Entra ID (Azure AD): guides/auth/entra-id.md
       - Media Backend:
           - MinIO: guides/minio-image-upload.md
           - S3: guides/s3-image-upload.md
+          - Google Cloud Storage: guides/s3-google-cloud-storage.md
       - Migrate from Etherpad: guides/migrate-etherpad.md
       - Migration Troubleshooting: guides/migration-troubleshooting.md
       - Terms of Use Setup: guides/providing-terms.md
@@ -39,6 +41,7 @@ nav:
       - 'HedgeDoc Flavored Markdown': references/hfm.md
       - 'Slide Options': references/slide-options.md
       - 'URL Scheme': references/url-scheme.md
+      - 'YAML Metadata': references/yaml-metadata.md
   - Developer:
       - 'Getting Started': dev/getting-started.md
       - API: dev/api.md
