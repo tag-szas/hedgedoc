@@ -1593,7 +1593,7 @@ __metadata:
     markdown-it-regexp: "npm:0.4.0"
     markdown-it-sub: "npm:1.0.0"
     markdown-it-sup: "npm:1.0.0"
-    markdown-it-wikilinks: "npm:^1.2.0"
+    markdown-it-wikilinks: "npm:1.2.0"
     mathjax: "npm:2.7.9"
     mattermost: "npm:3.4.0"
     mermaid: "npm:9.1.7"
@@ -10101,15 +10101,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"markdown-it-wikilinks@npm:^1.2.0":
-  version: 1.4.0
-  resolution: "markdown-it-wikilinks@npm:1.4.0"
+"markdown-it-wikilinks@npm:1.2.0":
+  version: 1.2.0
+  resolution: "markdown-it-wikilinks@npm:1.2.0"
   dependencies:
     extend: "npm:^3.0.2"
     markdown-it-regexp: "npm:^0.4.0"
-    reurl: "git+https://github.com/jsepia/reurl.git#commonjs"
     sanitize-filename: "npm:^1.6.3"
-  checksum: 10/f82cbf843d9796e9348d4c03157045d628b2d8c33499b21a45cf66f501fa8089cb81762a79384ad9e1db82595f8ed19f941c55e1751396bf3e849c1b51deaa27
+  checksum: 10/2b80fdf646da4e0a4e49c6c1743db26f4ae250a64478a32fbbbf98aa88a2c25387e98153165d9d64afe920766fd9dfba80aeba788a559aeec27b2d1b77da691c
   languageName: node
   linkType: hard
 
@@ -14708,15 +14707,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reurl@git+https://github.com/jsepia/reurl.git#commonjs":
-  version: 1.0.0-rc.2
-  resolution: "reurl@https://github.com/jsepia/reurl.git#commit=a3210117636c115fb139517fcfb2ea929025cded"
-  dependencies:
-    spec-url: "npm:^2.0.0-dev.1"
-  checksum: 10/30d664ea930493b69f680e410ddae399cb4e2163107816a14314a156c5c5eb1d8d4cba44b428e811d07e4853d24f3ab3b7bd84976e8f312c38ef8eeef3caf673
-  languageName: node
-  linkType: hard
-
 "reusify@npm:^1.0.4":
   version: 1.1.0
   resolution: "reusify@npm:1.1.0"
@@ -15552,15 +15542,6 @@ __metadata:
   version: 3.0.22
   resolution: "spdx-license-ids@npm:3.0.22"
   checksum: 10/a2f214aaf74c21a0172232367ce785157cef45d78617ee4d12aa1246350af566968e28b511e2096b707611566ac3959b85d8bf2d53a65bc6b66580735d3e1965
-  languageName: node
-  linkType: hard
-
-"spec-url@npm:^2.0.0-dev.1":
-  version: 2.0.0-dev.1
-  resolution: "spec-url@npm:2.0.0-dev.1"
-  dependencies:
-    punycode: "npm:^2.1.1"
-  checksum: 10/d532e2c30cf77ff808ece899071bc165ef5e95e39cafc8ebfb8e52487e673f0678fb5e47c03d22768121232ab3abc5041f5f2e8b06576200d1fe9ac0368f1147
   languageName: node
   linkType: hard
 
