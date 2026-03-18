@@ -29,6 +29,10 @@ public/uploads/*
 
 site/
 
+# only track Dockerfile in srv/
+srv/*
+!srv/debian/Dockerfile
+
 # Yarn 2+ without zero-installs
 .pnp.*
 .yarn/*
